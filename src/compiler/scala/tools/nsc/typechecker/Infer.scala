@@ -15,7 +15,7 @@ package typechecker
 
 import scala.collection.{immutable, mutable}, mutable.ListBuffer
 import scala.reflect.internal.Depth
-import scala.tools.nsc.Reporting.WarningCategory, WarningCategory.LintInferAny
+import scala.tools.nsc.Reporting.WarningCategory
 import scala.util.control.ControlThrowable
 import symtab.Flags._
 
@@ -588,15 +588,11 @@ trait Infer extends Checkable {
       // For example, don't require this arg, where the lub of `AnyRef` and `V` yields the `Any`.
       // this.forall(kv => map.getOrElse[Any](kv._1, Map.DefaultSentinelFn()) == kv._2)
       if (settings.warnInferAny && !fn.isEmpty)
-        foreach3(tparams, targs, tvars) { (tparam, targ, tvar) =>
+        foreach2(targs, tvars) { (targ, tvar) =>
           if (topTypes.contains(targ.typeSymbol) &&
-              !tvar.constr.loBounds.exists(t => topTypes.contains(t.typeSymbol)) &&
-              !tvar.constr.hiBounds.exists(t => topTypes.contains(t.typeSymbol)))
-            context.warning(fn.pos, s"a type was inferred to be `${targ.typeSymbol.name
-              }`; this may indicate a programming error.", LintInferAny)
-          if (!tparam.isMonomorphicType && !targ.isHigherKinded)
-            context.warning(fn.pos, s"a type was inferred to be kind-polymorphic `${targ.typeSymbol.name
-              }` to conform to `${tparam.defString}`", LintInferAny)
+            !tvar.constr.loBounds.exists(t => topTypes.contains(t.typeSymbol)) &&
+            !tvar.constr.hiBounds.exists(t => topTypes.contains(t.typeSymbol)))
+            context.warning(fn.pos, s"a type was inferred to be `${targ.typeSymbol.name}`; this may indicate a programming error.", WarningCategory.LintInferAny)
         }
       adjustTypeArgs(tparams, tvars, targs, restpe)
     }

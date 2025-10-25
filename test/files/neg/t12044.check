@@ -1,9 +1,0 @@
-t12044.scala:51: warning: a type was inferred to be kind-polymorphic `Any` to conform to `F[_]`
-    f(new Bar) // warn
-    ^
-t12044.scala:54: warning: a type was inferred to be kind-polymorphic `Any` to conform to `F[_]`
-    f("": Any) // warn
-    ^
-error: No warnings can be incurred under -Werror.
-2 warnings
-1 error
